@@ -4,15 +4,19 @@ import { WeatherCard } from "./components/WeatherCard";
 import { ForecastCard } from "./components/ForecastCard";
 import { SearchBar } from "./components/SearchBar";
 import { Favorites } from "./components/Favorites";
+import { OfflineWarning } from "./components/OfflineWarning";
 import { StorageService } from "./lib/storage";
 import { Cloud, AlertCircle, RefreshCw, CheckCircle } from "lucide-react";
 import { 
-  useWeatherData, 
-  useWeatherDataByCoords, 
   useCurrentPosition,
   usePrefetchWeather,
   useRefreshWeather
 } from "./lib/weatherHooks";
+import { 
+  useOfflineWeatherData, 
+  useOfflineWeatherDataByCoords,
+  useOnlineStatus 
+} from "./lib/offlineWeatherHooks";
 
 function App() {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
@@ -25,16 +29,20 @@ function App() {
 
   // React Query hooks
   const { data: position, isLoading: locationLoading, error: locationError } = useCurrentPosition();
-  const weatherByCity = useWeatherData(selectedCity);
-  const weatherByCoords = useWeatherDataByCoords(
+  const isOnline = useOnlineStatus();
+  
+  // Use offline-capable hooks
+  const weatherByCity = useOfflineWeatherData(selectedCity);
+  const weatherByCoords = useOfflineWeatherDataByCoords(
     useLocation && position ? { lat: position.latitude, lon: position.longitude } : null
   );
+  
   const prefetchWeather = usePrefetchWeather();
   const refreshWeather = useRefreshWeather();
 
   // Determine which weather data to use
   const currentWeatherData = useLocation ? weatherByCoords : weatherByCity;
-  const { currentWeather, forecast, isLoading, error } = currentWeatherData;
+  const { currentWeather, forecast, isLoading, error, isOffline, isCachedData, cacheAge } = currentWeatherData;
 
   useEffect(() => {
     setFavorites(StorageService.getFavorites());
@@ -160,6 +168,14 @@ function App() {
             <p className="text-blue-800">Getting your location...</p>
           </div>
         )}
+
+        {/* Offline Warning */}
+        <OfflineWarning 
+          isOffline={isOffline}
+          isCachedData={isCachedData}
+          cacheAge={cacheAge}
+          className="mb-6 max-w-md mx-auto"
+        />
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

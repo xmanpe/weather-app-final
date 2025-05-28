@@ -21,8 +21,9 @@ import {
   Sun,
   Gauge
 } from "lucide-react";
-import { WeatherService } from "@/lib/weatherService";
+import { OfflineWarning } from "./OfflineWarning";
 import { StorageService } from "@/lib/storage";
+import { useOfflineWeatherData } from "@/lib/offlineWeatherHooks";
 import type { CurrentWeather, ForecastData } from "@/lib/weatherService";
 
 interface WeatherModalProps {
@@ -33,48 +34,18 @@ interface WeatherModalProps {
 }
 
 export function WeatherModal({ isOpen, onClose, cityName, onToggleFavorite }: WeatherModalProps) {
-  const [currentWeather, setCurrentWeather] = useState<CurrentWeather | null>(null);
-  const [forecast, setForecast] = useState<ForecastData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Use offline weather hook instead of manual fetching
+  const { 
+    currentWeather, 
+    forecast, 
+    isLoading: loading, 
+    error, 
+    isOffline, 
+    isCachedData, 
+    cacheAge 
+  } = useOfflineWeatherData(isOpen ? cityName : null);
 
   const formatTemp = (temp: number): number => Math.round(temp);
-
-  // Fetch weather data when modal opens
-  useEffect(() => {
-    if (isOpen && cityName) {
-      const fetchWeatherData = async () => {
-        setLoading(true);
-        setError(null);
-        
-        try {
-          const [weatherData, forecastData] = await Promise.all([
-            WeatherService.getCurrentWeather(cityName),
-            WeatherService.getForecast(cityName)
-          ]);
-          
-          setCurrentWeather(weatherData);
-          setForecast(forecastData);
-        } catch (err) {
-          setError(`Could not load weather data for ${cityName}`);
-          console.error('Error fetching weather data:', err);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchWeatherData();
-    }
-  }, [isOpen, cityName]);
-
-  // Clear data when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setCurrentWeather(null);
-      setForecast(null);
-      setError(null);
-    }
-  }, [isOpen]);
 
   const isFavorite = currentWeather ? StorageService.isFavorite(currentWeather.name) : false;
 
@@ -143,6 +114,14 @@ export function WeatherModal({ isOpen, onClose, cityName, onToggleFavorite }: We
           </DialogTitle>
         </DialogHeader>
 
+        {/* Offline Warning */}
+        <OfflineWarning 
+          isOffline={isOffline}
+          isCachedData={isCachedData}
+          cacheAge={cacheAge}
+          className="mb-4"
+        />
+
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="flex flex-col items-center space-y-2">
@@ -152,7 +131,7 @@ export function WeatherModal({ isOpen, onClose, cityName, onToggleFavorite }: We
           </div>
         ) : error ? (
           <div className="text-center py-8">
-            <p className="text-red-600">{error}</p>
+            <p className="text-red-600">{error.message || 'An error occurred'}</p>
           </div>
         ) : currentWeather ? (
           <Tabs defaultValue="current" className="w-full">
