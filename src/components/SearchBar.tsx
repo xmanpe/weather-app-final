@@ -69,7 +69,7 @@ export function SearchBar({ onSearch, loading = false }: SearchBarProps) {
           const searchResultsWithWeather = await Promise.all(
             uniqueCities.map(async (city) => {
               try {
-                const weather = await WeatherService.getCurrentWeather(city.name);
+                const weather = await WeatherService.getCurrentWeatherByCoords(city.lat, city.lon);
                 return { city, weather };
               } catch (error) {
                 console.error(`Failed to get weather for ${city.name}:`, error);

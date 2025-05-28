@@ -121,7 +121,7 @@ export function WeatherModal({ isOpen, onClose, cityName, onToggleFavorite }: We
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
+          <DialogTitle className="flex items-center">
             <span className="flex items-center space-x-2">
               <Cloud className="h-5 w-5 text-blue-600" />
               <span>{cityName}</span>

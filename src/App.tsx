@@ -147,7 +147,7 @@ function App() {
 
         {/* Error Message */}
         {errorMessage && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-2 max-w-2xl mx-auto">
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-2 max-w-md mx-auto">
             <AlertCircle className="h-5 w-5 text-red-600" />
             <p className="text-red-800">{errorMessage}</p>
           </div>
@@ -155,7 +155,7 @@ function App() {
 
         {/* Loading State for Location */}
         {locationLoading && useLocation && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center space-x-2 max-w-2xl mx-auto">
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center space-x-2 max-w-md mx-auto">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
             <p className="text-blue-800">Getting your location...</p>
           </div>
