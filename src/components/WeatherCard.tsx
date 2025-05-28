@@ -1,38 +1,86 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Wind, Droplets, Eye, Thermometer } from "lucide-react";
+import { Heart, Wind, Droplets, Eye, Thermometer, MapPin, Loader2 } from "lucide-react";
 import { StorageService } from "@/lib/storage";
 import type { CurrentWeather } from "@/lib/weatherService";
 
 interface WeatherCardProps {
   weather: CurrentWeather | null;
   onToggleFavorite: (city: string) => void;
+  onUseCurrentLocation?: () => void;
+  locationLoading?: boolean;
 }
 
-export function WeatherCard({ weather, onToggleFavorite }: WeatherCardProps) {
-  if (!weather) return null;
+export function WeatherCard({ weather, onToggleFavorite, onUseCurrentLocation, locationLoading = false }: WeatherCardProps) {
+  if (!weather) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardContent className="p-8 text-center">
+          <div className="space-y-4">
+            <p className="text-muted-foreground">No weather data available</p>
+            {onUseCurrentLocation && (
+              <Button 
+                onClick={onUseCurrentLocation}
+                disabled={locationLoading}
+                className="w-full"
+              >
+                {locationLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Getting your location...
+                  </>
+                ) : (
+                  <>
+                    <MapPin className="h-4 w-4 mr-2" />
+                    Use Current Location
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const isFavorite = StorageService.isFavorite(weather.name);
-
   const formatTemp = (temp: number): number => Math.round(temp);
 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-2xl font-bold">{weather.name}</CardTitle>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => onToggleFavorite(weather.name)}
-          className="h-8 w-8"
-        >
-          <Heart
-            className={`h-4 w-4 ${
-              isFavorite ? "fill-red-500 text-red-500" : "text-gray-500"
-            }`}
-          />
-        </Button>
+        <div className="flex items-center space-x-2">
+          {onUseCurrentLocation && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onUseCurrentLocation}
+              disabled={locationLoading}
+              className="h-8 w-8"
+              title="Use current location"
+            >
+              {locationLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <MapPin className="h-4 w-4" />
+              )}
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onToggleFavorite(weather.name)}
+            className="h-8 w-8"
+          >
+            <Heart
+              className={`h-4 w-4 ${
+                isFavorite ? "fill-red-500 text-red-500" : "text-gray-500"
+              }`}
+            />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">

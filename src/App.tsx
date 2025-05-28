@@ -14,12 +14,14 @@ function App() {
   const [forecast, setForecast] = useState<ForecastData | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [locationLoading, setLocationLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasTriedLocation, setHasTriedLocation] = useState<boolean>(false);
 
   useEffect(() => {
     setFavorites(StorageService.getFavorites());
-    // Load default city weather (London)
-    handleSearch("London");
+    // Try to get user's current location first, fallback to London
+    handleUseCurrentLocation();
   }, []);
 
   const handleSearch = async (city: string) => {
@@ -39,6 +41,34 @@ function App() {
       console.error('Error fetching weather data:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUseCurrentLocation = async () => {
+    setLocationLoading(true);
+    setError(null);
+    
+    try {
+      const position = await WeatherService.getCurrentPosition();
+      const [weatherData, forecastData] = await Promise.all([
+        WeatherService.getCurrentWeatherByCoords(position.latitude, position.longitude),
+        WeatherService.getForecastByCoords(position.latitude, position.longitude)
+      ]);
+      
+      setCurrentWeather(weatherData);
+      setForecast(forecastData);
+      setHasTriedLocation(true);
+    } catch (err) {
+      console.error('Error getting current location weather:', err);
+      setError(`Could not get your location: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      
+      // Fallback to London only if we haven't tried location before
+      if (!hasTriedLocation) {
+        setHasTriedLocation(true);
+        handleSearch("London");
+      }
+    } finally {
+      setLocationLoading(false);
     }
   };
 
@@ -104,12 +134,12 @@ function App() {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
               </div>
             ) : (
-              currentWeather && (
-                <WeatherCard
-                  weather={currentWeather}
-                  onToggleFavorite={handleToggleFavorite}
-                />
-              )
+              <WeatherCard
+                weather={currentWeather}
+                onToggleFavorite={handleToggleFavorite}
+                onUseCurrentLocation={handleUseCurrentLocation}
+                locationLoading={locationLoading}
+              />
             )}
           </TabsContent>
 

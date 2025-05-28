@@ -90,6 +90,11 @@ export interface CitySearchResult {
   state?: string;
 }
 
+export interface GeolocationPosition {
+  latitude: number;
+  longitude: number;
+}
+
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || 'your_api_key_here';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
@@ -111,6 +116,23 @@ export class WeatherService {
     }
   }
 
+  static async getCurrentWeatherByCoords(lat: number, lon: number): Promise<CurrentWeather> {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Weather data not found');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching current weather by coordinates:', error);
+      throw error;
+    }
+  }
+
   static async getForecast(city: string): Promise<ForecastData> {
     try {
       const response = await fetch(
@@ -124,6 +146,23 @@ export class WeatherService {
       return await response.json();
     } catch (error) {
       console.error('Error fetching forecast:', error);
+      throw error;
+    }
+  }
+
+  static async getForecastByCoords(lat: number, lon: number): Promise<ForecastData> {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Forecast data not found');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching forecast by coordinates:', error);
       throw error;
     }
   }
@@ -143,5 +182,43 @@ export class WeatherService {
       console.error('Error searching cities:', error);
       throw error;
     }
+  }
+
+  static async getCurrentPosition(): Promise<GeolocationPosition> {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by this browser'));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        (error) => {
+          let errorMessage = 'Unknown location error';
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location access denied by user';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information unavailable';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out';
+              break;
+          }
+          reject(new Error(errorMessage));
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000, // 5 minutes
+        }
+      );
+    });
   }
 } 
