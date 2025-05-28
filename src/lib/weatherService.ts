@@ -1,0 +1,147 @@
+interface WeatherData {
+  id: number;
+  main: string;
+  description: string;
+  icon: string;
+}
+
+interface MainWeatherInfo {
+  temp: number;
+  feels_like: number;
+  temp_min: number;
+  temp_max: number;
+  pressure: number;
+  humidity: number;
+}
+
+interface WindInfo {
+  speed: number;
+  deg: number;
+}
+
+interface CloudsInfo {
+  all: number;
+}
+
+interface SysInfo {
+  type: number;
+  id: number;
+  country: string;
+  sunrise: number;
+  sunset: number;
+}
+
+export interface CurrentWeather {
+  coord: {
+    lon: number;
+    lat: number;
+  };
+  weather: WeatherData[];
+  base: string;
+  main: MainWeatherInfo;
+  visibility: number;
+  wind: WindInfo;
+  clouds: CloudsInfo;
+  dt: number;
+  sys: SysInfo;
+  timezone: number;
+  id: number;
+  name: string;
+  cod: number;
+}
+
+interface ForecastItem {
+  dt: number;
+  main: MainWeatherInfo;
+  weather: WeatherData[];
+  clouds: CloudsInfo;
+  wind: WindInfo;
+  visibility: number;
+  pop: number;
+  dt_txt: string;
+}
+
+export interface ForecastData {
+  cod: string;
+  message: number;
+  cnt: number;
+  list: ForecastItem[];
+  city: {
+    id: number;
+    name: string;
+    coord: {
+      lat: number;
+      lon: number;
+    };
+    country: string;
+    population: number;
+    timezone: number;
+    sunrise: number;
+    sunset: number;
+  };
+}
+
+export interface CitySearchResult {
+  name: string;
+  local_names?: { [key: string]: string };
+  lat: number;
+  lon: number;
+  country: string;
+  state?: string;
+}
+
+const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || 'your_api_key_here';
+const BASE_URL = 'https://api.openweathermap.org/data/2.5';
+
+export class WeatherService {
+  static async getCurrentWeather(city: string): Promise<CurrentWeather> {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/weather?q=${city}&appid=${API_KEY}&units=metric`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Weather data not found');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching current weather:', error);
+      throw error;
+    }
+  }
+
+  static async getForecast(city: string): Promise<ForecastData> {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/forecast?q=${city}&appid=${API_KEY}&units=metric`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Forecast data not found');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching forecast:', error);
+      throw error;
+    }
+  }
+
+  static async searchCities(query: string): Promise<CitySearchResult[]> {
+    try {
+      const response = await fetch(
+        `http://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${API_KEY}`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Cities not found');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error searching cities:', error);
+      throw error;
+    }
+  }
+} 
