@@ -21,6 +21,7 @@ function App() {
   const [hasTriedLocation, setHasTriedLocation] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [refreshSuccess, setRefreshSuccess] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("current");
 
   // React Query hooks
   const { data: position, isLoading: locationLoading, error: locationError } = useCurrentPosition();
@@ -82,6 +83,8 @@ function App() {
   };
 
   const handleSelectFavorite = (city: string) => {
+    // This function is kept for compatibility but no longer switches tabs
+    // The modal will handle the detailed view
     handleSearch(city);
   };
 
@@ -159,7 +162,7 @@ function App() {
         )}
 
         {/* Main Content */}
-        <Tabs defaultValue="current" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto">
             <TabsTrigger value="current">Current</TabsTrigger>
             <TabsTrigger value="forecast">Forecast</TabsTrigger>
@@ -196,6 +199,7 @@ function App() {
               favorites={favorites}
               onSelectCity={handleSelectFavorite}
               onRemoveFavorite={handleRemoveFavorite}
+              onToggleFavorite={handleToggleFavorite}
             />
           </TabsContent>
         </Tabs>
