@@ -94,7 +94,10 @@ export function useCitySearch(query: string) {
 export function useCurrentPosition() {
   return useQuery({
     queryKey: ['geolocation', 'current'],
-    queryFn: () => WeatherService.getCurrentPosition(),
+    queryFn: () => {
+      console.log('🚀 useCurrentPosition queryFn executing');
+      return WeatherService.getCurrentPosition();
+    },
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
     retry: false, // Don't retry geolocation requests

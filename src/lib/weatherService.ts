@@ -185,30 +185,40 @@ export class WeatherService {
   }
 
   static async getCurrentPosition(): Promise<GeolocationPosition> {
+    console.log('🔍 getCurrentPosition called - checking geolocation support');
+    
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
+        console.error('❌ Geolocation is not supported by this browser');
         reject(new Error('Geolocation is not supported by this browser'));
         return;
       }
 
+      console.log('✅ Geolocation is supported - requesting position');
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          console.log('✅ Position obtained:', position.coords);
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
         },
         (error) => {
+          console.error('❌ Geolocation error:', error);
           let errorMessage = 'Unknown location error';
           switch (error.code) {
             case error.PERMISSION_DENIED:
               errorMessage = 'Location access denied by user';
+              console.log('🚫 User denied location permission');
               break;
             case error.POSITION_UNAVAILABLE:
               errorMessage = 'Location information unavailable';
+              console.log('📍 Position unavailable');
               break;
             case error.TIMEOUT:
               errorMessage = 'Location request timed out';
+              console.log('⏰ Location request timeout');
               break;
           }
           reject(new Error(errorMessage));

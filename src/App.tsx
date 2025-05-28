@@ -61,9 +61,38 @@ function App() {
   };
 
   const handleUseCurrentLocation = async () => {
-    setUseLocation(true);
-    setSelectedCity(null);
-    setHasTriedLocation(true);
+    console.log('🔘 Use Current Location button clicked');
+    
+    // Test direct geolocation call to ensure permission dialog appears
+    if (navigator.geolocation) {
+      console.log('🌍 Testing direct geolocation call...');
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log('✅ Direct geolocation success:', position.coords);
+          setUseLocation(true);
+          setSelectedCity(null);
+          setHasTriedLocation(true);
+        },
+        (error) => {
+          console.error('❌ Direct geolocation error:', error);
+          setUseLocation(true);
+          setSelectedCity(null);
+          setHasTriedLocation(true);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0, // Force fresh request
+        }
+      );
+    } else {
+      console.error('❌ Geolocation not supported');
+      setUseLocation(true);
+      setSelectedCity(null);
+      setHasTriedLocation(true);
+    }
+    
+    console.log('🏠 State updated: useLocation=true, selectedCity=null');
   };
 
   // Fallback to London if location fails and we haven't tried location before
@@ -133,10 +162,10 @@ function App() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-2 pt-12">
             <Cloud className="h-8 w-8 text-blue-600" />
-            <h1 className="text-4xl font-bold text-gray-900">Weather App</h1>
+            <h1 className="text-4xl font-bold text-gray-900">Weathery</h1>
           </div>
           <p className="text-gray-600">
-            Get current weather and 5-day forecast for any city
+            Your most favorite weather app!
           </p>
         </div>
 
@@ -257,7 +286,7 @@ function App() {
             </a>
           </p>
           <p className="mt-2 text-xs">
-            ⚡ Enhanced with React Query for caching, retry, and background updates
+            ⚡ Enhanced with React Query
           </p>
         </div>
       </div>
