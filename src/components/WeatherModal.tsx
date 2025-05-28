@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,17 +13,14 @@ import {
   Wind, 
   Droplets, 
   Eye, 
-  Thermometer, 
   Loader2,
-  MapPin,
   Cloud,
-  Sun,
   Gauge
 } from "lucide-react";
 import { OfflineWarning } from "./OfflineWarning";
 import { StorageService } from "@/lib/storage";
 import { useOfflineWeatherData } from "@/lib/offlineWeatherHooks";
-import type { CurrentWeather, ForecastData } from "@/lib/weatherService";
+import type { ForecastData } from "@/lib/weatherService";
 
 interface WeatherModalProps {
   isOpen: boolean;

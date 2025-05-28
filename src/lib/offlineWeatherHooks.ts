@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { CacheService, type CachedWeatherData } from './cacheService';
 import { WeatherService, type CurrentWeather, type ForecastData } from './weatherService';
@@ -21,7 +21,6 @@ export interface OfflineWeatherResult {
 export function useOfflineWeatherData(city: string | null): OfflineWeatherResult {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [cachedData, setCachedData] = useState<CachedWeatherData | null>(null);
-  const queryClient = useQueryClient();
 
   // Listen for online/offline events
   useEffect(() => {
@@ -126,7 +125,6 @@ export function useOfflineWeatherData(city: string | null): OfflineWeatherResult
 export function useOfflineWeatherDataByCoords(coords: { lat: number; lon: number } | null): OfflineWeatherResult {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [cachedData, setCachedData] = useState<CachedWeatherData | null>(null);
-  const queryClient = useQueryClient();
 
   // Listen for online/offline events
   useEffect(() => {

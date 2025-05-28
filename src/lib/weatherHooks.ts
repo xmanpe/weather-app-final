@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { WeatherService, type CurrentWeather, type ForecastData, type CitySearchResult, type GeolocationPosition } from './weatherService';
+import { WeatherService } from './weatherService';
 
 // Query keys for caching
 export const weatherKeys = {

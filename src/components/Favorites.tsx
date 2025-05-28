@@ -7,12 +7,11 @@ import { WeatherModal } from "./WeatherModal";
 
 interface FavoritesProps {
   favorites: string[];
-  onSelectCity: (city: string) => void;
   onRemoveFavorite: (city: string) => void;
   onToggleFavorite?: (city: string) => void;
 }
 
-export function Favorites({ favorites, onSelectCity, onRemoveFavorite, onToggleFavorite }: FavoritesProps) {
+export function Favorites({ favorites, onRemoveFavorite, onToggleFavorite }: FavoritesProps) {
   const [selectedCityForModal, setSelectedCityForModal] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 

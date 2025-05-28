@@ -14,8 +14,7 @@ import {
 } from "./lib/weatherHooks";
 import { 
   useOfflineWeatherData, 
-  useOfflineWeatherDataByCoords,
-  useOnlineStatus 
+  useOfflineWeatherDataByCoords
 } from "./lib/offlineWeatherHooks";
 
 function App() {
@@ -29,7 +28,6 @@ function App() {
 
   // React Query hooks
   const { data: position, isLoading: locationLoading, error: locationError } = useCurrentPosition();
-  const isOnline = useOnlineStatus();
   
   // Use offline-capable hooks
   const weatherByCity = useOfflineWeatherData(selectedCity);
@@ -88,12 +86,6 @@ function App() {
       // Prefetch weather data for newly added favorite
       prefetchWeather.mutate(city);
     }
-  };
-
-  const handleSelectFavorite = (city: string) => {
-    // This function is kept for compatibility but no longer switches tabs
-    // The modal will handle the detailed view
-    handleSearch(city);
   };
 
   const handleRemoveFavorite = (city: string) => {
@@ -213,7 +205,6 @@ function App() {
           <TabsContent value="favorites" className="space-y-6">
             <Favorites
               favorites={favorites}
-              onSelectCity={handleSelectFavorite}
               onRemoveFavorite={handleRemoveFavorite}
               onToggleFavorite={handleToggleFavorite}
             />
